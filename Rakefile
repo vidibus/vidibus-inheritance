@@ -5,12 +5,16 @@ begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
     gem.name = "vidibus-inheritance"
-    gem.summary = %Q{TODO: one-line summary of your gem}
-    gem.description = %Q{TODO: longer description of your gem}
-    gem.email = "andre@webwarelab.com"
-    gem.homepage = "http://github.com/webwarelab/vidibus-inheritance"
+    gem.summary = %Q{Provides inheritance for models}
+    gem.description = %Q{Provides inheritance for models}
+    gem.email = "andre@vidibus.com"
+    gem.homepage = "http://github.com/vidibus/vidibus-inheritance"
     gem.authors = ["Andre Pankratz"]
     gem.add_development_dependency "rspec", ">= 1.2.9"
+    gem.add_development_dependency "mongoid", ">= 2.0.0.beta6"
+    gem.add_development_dependency "rr"
+    # gem.add_dependency "vidibus-core_extensions"
+    gem.add_dependency "vidibus-uuid"
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
   Jeweler::GemcutterTasks.new
