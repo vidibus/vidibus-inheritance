@@ -21,3 +21,12 @@ Spec::Runner.configure do |config|
     Mongoid.master.collections.select { |c| c.name != "system.indexes" }.each(&:drop)  
   end
 end
+
+# Helper for stubbing time. Define String to be set as Time.now.
+# example: stub_time!('01.01.2010 14:00')
+# example: stub_time!(2.days.ago)
+def stub_time!(string = nil)
+  now = string ? Time.parse(string.to_s) : Time.now
+  stub(Time).now { now }
+  now
+end

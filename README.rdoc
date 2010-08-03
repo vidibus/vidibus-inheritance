@@ -2,6 +2,8 @@
 
 Description goes here.
 
+Will only work if dynamic adding of fields is allowed
+
 == Note on Patches/Pull Requests
  
 * Fork the project.
