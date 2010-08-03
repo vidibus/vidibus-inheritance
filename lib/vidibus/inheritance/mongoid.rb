@@ -3,7 +3,7 @@ module Vidibus
     module Mongoid
       extend ActiveSupport::Concern
 
-      ACQUIRED_ATTRIBUTES = %w[_id uuid ancestor_uuid mutated_attributes _documents_count created_at updated_at version versions]
+      ACQUIRED_ATTRIBUTES = %w[_id uuid ancestor_uuid mutated_attributes mutated _documents_count created_at updated_at version versions]
       
       included do
         attr_accessor :inherited_attributes
@@ -11,27 +11,29 @@ module Vidibus
         
         field :ancestor_uuid
         
-        attr_protected :_documents_count, :mutated_attributes
+        attr_protected :_documents_count, :mutated_attributes, :mutated
         field :_documents_count, :type => Integer, :default => 0
         field :mutated_attributes, :type => Array, :default => []
+        field :mutated, :type => Boolean
 
         validates :ancestor_uuid, :uuid => { :allow_blank => true }
         validates :ancestor, :ancestor => true, :if => :ancestor_uuid?
         
         before_validation :preprocess        
         after_save :postprocess
-        # after_save :inherit_documents, :if => :embed?
-        # after_update :update_inheritors
-        
-        # after_create :notify_parent
-        
-        #after_create :notify_parent, :if => :embedded?
 
+        # Returns true if attributes have been mutated.
+        def mutated?
+          @is_mutated ||= mutated || mutated_attributes.any?
+        end
+        
         protected
         
         attr_accessor :_inherited
         attr_accessor :_changed
         attr_accessor :_skip_callbacks
+        
+
       end
       
       # Callback of Mongoid when deleting a collection item on a parent object.
@@ -65,10 +67,11 @@ module Vidibus
         self.inherit!(options)
       end
       
-      # Returns true if attributes have been mutated.
-      def mutated?
-        @is_mutated ||= mutated_attributes.any?
-      end
+      # # Returns true if attributes have been mutated.
+      # def mutated?
+      #   puts 'mutated?'
+      #   @is_mutated ||= mutated_attributes.any?
+      # end
       
       # Returns list of objects that inherit from this ancestor.
       def inheritors

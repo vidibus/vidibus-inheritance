@@ -128,6 +128,13 @@ describe "Vidibus::Inheritance::Mongoid" do
       @inheritor.reload
       @inheritor.mutated?.should be_true
     end
+    
+    it "should be true if mutated has been set to true" do
+      @inheritor.mutated = true
+      @inheritor.save!
+      @inheritor.reload
+      @inheritor.mutated?.should be_true
+    end
   end
   
   describe "#ancestor" do
