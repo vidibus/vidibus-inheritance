@@ -17,11 +17,8 @@ module Vidibus
 
         validates :ancestor_uuid, :uuid => { :allow_blank => true }
         validates :ancestor, :ancestor => true, :if => :ancestor_uuid?
-
-        before_validation :track_mutations
-        # before_validation :track_documents, :if => :embed?
-        before_validation :inherit_attributes, :if => :inherit?
         
+        before_validation :preprocess        
         after_save :postprocess
         # after_save :inherit_documents, :if => :embed?
         # after_update :update_inheritors
@@ -34,6 +31,7 @@ module Vidibus
         
         attr_accessor :_inherited
         attr_accessor :_changed
+        attr_accessor :_skip_callbacks
       end
       
       # Callback of Mongoid when deleting a collection item on a parent object.
@@ -79,13 +77,32 @@ module Vidibus
       
       protected
       
+      def preprocess
+        # return if _skip_callbacks
+        track_mutations
+        # track_document_changes if embed?
+        inherit_attributes if inherit?
+      end
+      
       def postprocess
-        if embed?
-          inherit_documents
-          # track_documents
-        end
+        # return if _skip_callbacks
+        # if embed?
+        #   inherit_documents
+        #   track_document_changes
+        #   if _documents_count_changed?
+        #     update_without_callbacks
+        #   end
+        # end
+        inherit_documents if embed?
         update_inheritors
       end
+      
+      # def update_without_callbacks
+      #   puts '######################### update_without_callbacks: '+_id.to_s
+      #   self._skip_callbacks = true
+      #   update
+      #   self._skip_callbacks = nil
+      # end
       
       # Returns true if inheritance should be applied on inheritor.
       def inherit?
@@ -118,7 +135,7 @@ module Vidibus
       
       # Returns embedded documents.
       def inheritable_documents
-        # @inheritable_documents ||= 
+        #@inheritable_documents ||= 
         begin
           list = {}
           for name, association in associations
@@ -151,7 +168,7 @@ module Vidibus
       # # Detects changes of inheritable documents.
       # # Sets _changed to true if children attributes have been changed recently.
       # # Stores _documents_count.
-      # def track_documents
+      # def track_document_changes
       #   changed_items = []
       #   if list = inheritable_documents
       #     documents_count = 0
@@ -171,17 +188,10 @@ module Vidibus
       #   
       #   puts "documents_count = #{documents_count.inspect}"
       #   puts "_documents_count = #{_documents_count.inspect}"
-      #   
+      # 
       #   if documents_count and documents_count != _documents_count
       #     self._changed = true
       #     self._documents_count = documents_count
-      #     
-      #     # Master.new(master, "vidibus-inheritance_test")
-      #     # Mongoid.master.update("{_id:'#{_id}'}", "{_documents_count:#{_documents_count}}")
-      #     # raise
-      #     
-      #     # update_attributes({ :_documents_count => _documents_count })
-      #     # self.class.update_all({ :_documents_count => _documents_count }, { :_id => _id })
       #   elsif changed_items.any?
       #     self._changed = true
       #   end
@@ -201,27 +211,29 @@ module Vidibus
       def inherit_documents
         return unless ancestor
         return unless list = ancestor.reload.inheritable_documents
-        documents_count = _documents_count
-        puts ">>>> inherit_documents on #{_id}: #{list.inspect}"
+        # puts ">>>> inherit_documents on #{_id}: #{list.inspect}"
         for association, inheritable in list
           
           # embeds_many
           if inheritable.is_a?(Array)
-            collection = self.send(association)
-            existing_ids = collection.map { |a| a.try(:_reference_id) }
+            collection = new_record? ? self.send(association) : self.reload.send(association)
+            existing_ids = collection.map do |a| 
+              begin
+                a._reference_id
+              rescue
+              end
+            end
             for obj in inheritable
               attrs = inheritable_document_attributes(obj)
               if existing_ids.include?(obj._id)
                 existing = collection.where(:_reference_id => obj._id).first
                 existing.update_attributes(attrs)
               else
-                self._documents_count += 1
                 collection.create!(attrs)
               end
             end
             obsolete = existing_ids - inheritable.map { |i| i._id }
             if obsolete.any?
-              self._documents_count -= 1
               collection.destroy_all(:_reference_id => obsolete)
             end
             
@@ -232,18 +244,12 @@ module Vidibus
               if existing = self.send("#{association}")
                 existing.update_attributes(attrs)
               else
-                self._documents_count += 1
                 self.send("create_#{association}", attrs)
               end
             elsif existing = self.send("#{association}")
-              self._documents_count -= 1
               existing.destroy
             end
           end
-        end
-        
-        if documents_count != _documents_count
-          self._changed = true
         end
       end
       
@@ -252,25 +258,14 @@ module Vidibus
       def inheritable_document_attributes(obj)
         attrs = obj.attributes.except(*ACQUIRED_ATTRIBUTES)
         attrs[:_reference_id] = obj._id
-        # if obj.respond_to?(:ancestor_uuid)
-        #   attrs[:ancestor] = obj
-        # end
         attrs
       end
       
       # Applies changes to inheritors.
       def update_inheritors
-        puts "#{_id}: update_inheritors"
         return unless inheritors.any?
-        puts "#{_id}: _changed = #{_changed.inspect}"
-        if _changed
-          # for inheritor in inheritors
-          #   inheritor.reload
-          #   inheritor.inherit!
-          # end
-          puts ">>>>>>>> update_inheritors of #{_id} <<<<<<<<<"
-          inheritors.each(&:inherit!)
-        end
+        # puts "#{_id}: update_inheritors"
+        inheritors.each(&:inherit!)
       end
     end
   end

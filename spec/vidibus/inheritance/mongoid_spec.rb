@@ -466,10 +466,6 @@ describe "Vidibus::Inheritance::Mongoid" do
       
       context "with embedded collections" do
         before(:each) do
-          puts "@grand_ancestor._id = #{@grand_ancestor._id.inspect}"
-          puts "@ancestor._id = #{@ancestor._id.inspect}"
-          puts "@inheritor._id = #{@inheritor._id.inspect}"
-          puts "------"
           @grand_ancestor.children.create(:name => "Han")
           @grand_ancestor.save
           @ancestor.reload
@@ -477,40 +473,73 @@ describe "Vidibus::Inheritance::Mongoid" do
         end
 
         it "should inherit subobjects" do
-          @ancestor.children.should have(1).child
           @inheritor.children.should have(1).child
-          puts "@inheritor._documents_count = #{@inheritor._documents_count.inspect}"
         end
 
         it "should add subobjects" do
-          @ancestor.children << Child.new(:name => "Leah")
-          @ancestor.save
-          @ancestor.children.should have(2).children
+          @grand_ancestor.children << Child.new(:name => "Leah")
+          @grand_ancestor.save
           @inheritor.reload
           @inheritor.children.should have(2).children
         end
 
         it "should not add existing subobjects twice" do
-          @inheritor.inherit_from!(@ancestor)
+          @ancestor.inherit_from!(@grand_ancestor)
+          @inheritor.reload
           @inheritor.children.should have(1).child
-          @inheritor.reload.children.should have(1).child
         end
 
         it "should remove subobjects" do
           @inheritor.children.should have(1).child
-          @ancestor.children.first.destroy
-          @ancestor.save
+          @grand_ancestor.children.first.destroy
+          @grand_ancestor.save
+          @grand_ancestor.children.should have(0).children
           @inheritor.reload
-          @ancestor.children.should have(0).children
           @inheritor.children.should have(0).children
         end
 
         it "should apply changed subobjects" do
-          @ancestor.children.first.name = "Luke"
-          @ancestor.save
+          @grand_ancestor.children.first.name = "Luke"
+          @grand_ancestor.save
+          @grand_ancestor.children.first.name.should eql("Luke")
           @inheritor.reload
-          @ancestor.children.first.name.should eql("Luke")
           @inheritor.children.first.name.should eql("Luke")
+        end
+      end
+      
+      context "with embedded items" do
+        before(:each) do
+          @grand_ancestor.create_location(:name => "Home")
+          @grand_ancestor.save
+          @ancestor.reload
+          @inheritor.reload
+        end
+
+        it "should inherit subobject on existing relationship" do
+          @inheritor.location.should_not be_nil
+        end
+
+        it "should inherit subobjects when relationship gets established" do
+          ancestor = Model.new
+          ancestor.inherit_from!(@grand_ancestor)
+          inheritor = Model.new
+          inheritor.inherit_from!(ancestor)
+          inheritor.location.should_not be_nil
+        end
+
+        it "should apply changes of subobject" do
+          @grand_ancestor.location.name = "Studio"
+          @grand_ancestor.save
+          @inheritor.reload
+          @inheritor.location.name.should eql("Studio")
+        end
+
+        it "should remove subobject" do
+          @grand_ancestor.location.destroy
+          @grand_ancestor.save
+          @inheritor.reload
+          @grand_ancestor.location.should be_nil
+          @inheritor.location.should be_nil
         end
       end
     end
