@@ -2,7 +2,14 @@
 
 Description goes here.
 
-Will only work if dynamic adding of fields is allowed
+Will only work if dynamic adding of fields is allowed.
+
+To perform check if update should be applied to subobject, define a callback method:
+
+  def update_inheritance?(attrs)
+    # return true to allow update
+  end
+
 
 == Note on Patches/Pull Requests
  

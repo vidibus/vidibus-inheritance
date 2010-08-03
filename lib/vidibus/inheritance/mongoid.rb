@@ -227,7 +227,7 @@ module Vidibus
               attrs = inheritable_document_attributes(obj)
               if existing_ids.include?(obj._id)
                 existing = collection.where(:_reference_id => obj._id).first
-                existing.update_attributes(attrs)
+                update_inheritable_document(existing, attrs)
               else
                 collection.create!(attrs)
               end
@@ -242,7 +242,7 @@ module Vidibus
             if inheritable
               attrs = inheritable_document_attributes(inheritable)
               if existing = self.send("#{association}")
-                existing.update_attributes(attrs)
+                update_inheritable_document(existing, attrs)
               else
                 self.send("create_#{association}", attrs)
               end
@@ -250,6 +250,16 @@ module Vidibus
               existing.destroy
             end
           end
+        end
+      end
+      
+      def update_inheritable_document(doc, attrs)
+        if doc.respond_to?(:update_inheritance?)
+          if doc.update_inheritance?(attrs) == true
+            doc.update_attributes(attrs)
+          end
+        else
+          doc.update_attributes(attrs)
         end
       end
       

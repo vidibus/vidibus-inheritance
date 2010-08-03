@@ -398,12 +398,36 @@ describe "Vidibus::Inheritance::Mongoid" do
         @inheritor.children.should have(0).children
       end
       
-      it "should apply changed subobjects" do
+      it "should update subobjects" do
         @ancestor.children.first.name = "Luke"
         @ancestor.save
         @inheritor.reload
         @ancestor.children.first.name.should eql("Luke")
         @inheritor.children.first.name.should eql("Luke")
+      end
+      
+      context "with callback method" do
+        it "should update subobjects if callback method returns true" do
+          Child.send(:define_method, :update_inheritance?) { true }
+          @ancestor.children.first.name = "Luke"
+          @ancestor.save
+          @inheritor.reload
+          @ancestor.children.first.name.should eql("Luke")
+          @inheritor.children.first.name.should eql("Luke")
+        end
+
+        it "should not update subobjects if callback method returns false" do
+          Child.send(:define_method, :update_inheritance?) { false }
+          @ancestor.children.first.name = "Luke"
+          @ancestor.save
+          @ancestor.children.first.name.should eql("Luke")
+          @inheritor.reload
+          @inheritor.children.first.name.should_not eql("Luke")
+        end
+        
+        after(:all) do
+          Child.send(:remove_method, :update_inheritance?)
+        end
       end
     end
     
@@ -425,7 +449,7 @@ describe "Vidibus::Inheritance::Mongoid" do
         inheritor.location.should_not be_nil
       end
       
-      it "should apply changes of subobject" do
+      it "should update subobject" do
         @ancestor.location.name = "Studio"
         @ancestor.save
         @inheritor.reload
@@ -498,7 +522,7 @@ describe "Vidibus::Inheritance::Mongoid" do
           @inheritor.children.should have(0).children
         end
 
-        it "should apply changed subobjects" do
+        it "should update subobjects" do
           @grand_ancestor.children.first.name = "Luke"
           @grand_ancestor.save
           @grand_ancestor.children.first.name.should eql("Luke")
@@ -527,7 +551,7 @@ describe "Vidibus::Inheritance::Mongoid" do
           inheritor.location.should_not be_nil
         end
 
-        it "should apply changes of subobject" do
+        it "should update subobject" do
           @grand_ancestor.location.name = "Studio"
           @grand_ancestor.save
           @inheritor.reload
