@@ -402,32 +402,18 @@ describe "Vidibus::Inheritance::Mongoid" do
         @ancestor.children.first.name = "Luke"
         @ancestor.save
         @inheritor.reload
-        @ancestor.children.first.name.should eql("Luke")
         @inheritor.children.first.name.should eql("Luke")
       end
       
-      context "with callback method" do
-        it "should update subobjects if callback method returns true" do
-          Child.send(:define_method, :update_inheritance?) { true }
-          @ancestor.children.first.name = "Luke"
-          @ancestor.save
-          @inheritor.reload
-          @ancestor.children.first.name.should eql("Luke")
-          @inheritor.children.first.name.should eql("Luke")
+      it "should call #update_inherited_attributes for updating subobjects, if available" do
+        Child.send(:define_method, :update_inherited_attributes) do
+          self.update_attributes(:name => "Callback")
         end
-
-        it "should not update subobjects if callback method returns false" do
-          Child.send(:define_method, :update_inheritance?) { false }
-          @ancestor.children.first.name = "Luke"
-          @ancestor.save
-          @ancestor.children.first.name.should eql("Luke")
-          @inheritor.reload
-          @inheritor.children.first.name.should_not eql("Luke")
-        end
-        
-        after(:all) do
-          Child.send(:remove_method, :update_inheritance?)
-        end
+        @ancestor.children.first.name = "Luke"
+        @ancestor.save
+        Child.send(:remove_method, :update_inherited_attributes)
+        @inheritor.reload
+        @inheritor.children.first.name.should eql("Callback")
       end
     end
     

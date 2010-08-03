@@ -254,10 +254,8 @@ module Vidibus
       end
       
       def update_inheritable_document(doc, attrs)
-        if doc.respond_to?(:update_inheritance?)
-          if doc.update_inheritance?(attrs) == true
-            doc.update_attributes(attrs)
-          end
+        if doc.respond_to?(:update_inherited_attributes)
+          doc.update_inherited_attributes(attrs)
         else
           doc.update_attributes(attrs)
         end
