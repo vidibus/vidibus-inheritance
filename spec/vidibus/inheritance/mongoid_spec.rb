@@ -15,6 +15,7 @@ end
 class Child
   include Mongoid::Document
   field :name
+  field :mutated, :type => Boolean
   validates :name, :presence => true
   embedded_in :model, :inverse_of => :children
   embeds_many :puppets
@@ -33,6 +34,7 @@ end
 class Location
   include Mongoid::Document
   field :name
+  field :mutated, :type => Boolean
   validates :name, :presence => true
   embedded_in :model, :inverse_of => :location
   embedded_in :child, :inverse_of => :location
@@ -422,6 +424,14 @@ describe "Vidibus::Inheritance::Mongoid" do
         @inheritor.reload
         @inheritor.children.first.name.should eql("Callback")
       end
+      
+      it "should exclude acquired attributes of subobjects" do
+        @ancestor.children.first.mutated = true
+        @ancestor.save
+        @ancestor.children.first.mutated.should be_true
+        @inheritor.reload
+        @inheritor.children.first.mutated.should be_false
+      end
     end
     
     context "with embedded items" do
@@ -456,6 +466,14 @@ describe "Vidibus::Inheritance::Mongoid" do
         @inheritor.reload
         @ancestor.location.should be_nil
         @inheritor.location.should be_nil
+      end
+      
+      it "should exclude acquired attributes of subobject" do
+        @ancestor.location.mutated = true
+        @ancestor.save
+        @ancestor.location.mutated.should be_true
+        @inheritor.reload
+        @inheritor.location.mutated.should be_false
       end
     end
     
