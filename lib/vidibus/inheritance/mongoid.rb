@@ -3,21 +3,20 @@ module Vidibus
     module Mongoid
       extend ActiveSupport::Concern
 
-      ACQUIRED_ATTRIBUTES = %w[_id uuid ancestor_uuid mutated_attributes mutated _documents_count created_at updated_at version versions]
+      ACQUIRED_ATTRIBUTES = %w[_id uuid ancestor_uuid mutated_attributes mutated created_at updated_at version versions]
       
       included do
         attr_accessor :inherited_attributes, :_inherited
-        attr_protected :_documents_count, :mutated_attributes, :mutated
+        attr_protected :mutated_attributes, :mutated
         
         field :ancestor_uuid
-        field :_documents_count, :type => Integer, :default => 0
         field :mutated_attributes, :type => Array, :default => []
         field :mutated, :type => Boolean
 
         validates :ancestor_uuid, :uuid => { :allow_blank => true }
         validates :ancestor, :ancestor => true, :if => :ancestor_uuid?
-        
-        before_validation :preprocess        
+
+        before_validation :preprocess 
         after_save :postprocess
       
         # Callback of Mongoid when deleting a collection item on a parent object.
@@ -48,7 +47,6 @@ module Vidibus
         #   inherit!(:reset => [:name, :age]) => # Overwrites name and age
         #
         def inherit!(options = {})
-          # puts "inherit!"
           self.inherit_attributes(options)
           self.save!
         end
@@ -62,7 +60,7 @@ module Vidibus
       
         # Returns list of objects that inherit from this ancestor.
         def inheritors
-          self.class.where(:ancestor_uuid => uuid).all.to_a
+          self.class.where(:ancestor_uuid => uuid).to_a
         end
       
         # Returns embedded documents.
@@ -74,9 +72,7 @@ module Vidibus
         def mutated?
           @is_mutated ||= mutated || mutated_attributes.any?
         end
-        
 
-      
         protected
       
         # Performs inheritance of attributes while excluding acquired and mutated ones.
@@ -95,94 +91,8 @@ module Vidibus
           self.attributes = self.inherited_attributes = ancestor.attributes.except(*exceptions)
         end
         
-        # def inherit_documents
-        #   return unless ancestor
-        #   return unless list = ancestor.inheritable_documents
-        #   self.class.inherit_documents(self, list)
-        # end
-        # 
-        # class << self
-        #   
-        #   # Performs inheritance of documents.
-        #   def inherit_documents(obj, list)
-        #     return unless list
-        #     for association, inheritable in list
-        #       puts '------'
-        #       puts "#{association} #{inheritable.inspect}"
-        #       
-        #       # embeds_many
-        #       if inheritable.is_a?(Array)
-        #         puts "obj = #{obj.inspect}"
-        #         puts "association = #{association.inspect}"
-        #         collection = obj.new_record? ? obj.send(association) : obj.reload.send(association)
-        #         puts "collection = #{collection.inspect}"
-        #         existing_ids = collection.map do |a| 
-        #           begin
-        #             a._reference_id
-        #           rescue
-        #           end
-        #         end
-        #         for doc in inheritable
-        #           attrs = inheritable_document_attributes(doc)
-        #           puts "attrs = #{attrs.inspect}"
-        #           # puts "self.class.inheritable_documents(doc) = #{self.class.inheritable_documents(doc).inspect}"
-        #           if existing_ids.include?(doc._id)
-        #             existing = collection.where(:_reference_id => doc._id).first
-        #             puts "existing = #{existing.inspect}"
-        #             update_inheritable_document(existing, attrs)
-        #           else
-        #             puts 'create!'
-        #             collection.create!(attrs)
-        #             puts 'done'
-        #           end
-        #           
-        #         end
-        #         obsolete = existing_ids - inheritable.map { |i| i._id }
-        #         if obsolete.any?
-        #           collection.destroy_all(:_reference_id => obsolete)
-        #         end
-        #         puts 'asd'
-        #     
-        #       # embeds_one
-        #       else
-        #         if inheritable
-        #           attrs = inheritable_document_attributes(inheritable)
-        #           if existing = obj.send("#{association}")
-        #             update_inheritable_document(existing, attrs)
-        #           else
-        #             obj.send("create_#{association}", attrs)
-        #           end
-        #         elsif existing = obj.send("#{association}")
-        #           existing.destroy
-        #         end
-        #       end
-        #       
-        #       puts '---- done ----'
-        #     end
-        #   end
-        #   
-        #   # Returns list of inheritable attributes of a given document.
-        #   # The list will include the _id as reference.
-        #   def inheritable_document_attributes(doc)
-        #     attrs = doc.attributes.except(*ACQUIRED_ATTRIBUTES)
-        #     attrs[:_reference_id] = doc._id
-        #     attrs
-        #   end
-        #   
-        #   # Updates an given document with given attributes.
-        #   # This will perform #update_inherited_attributes on document, if this callback method is available.
-        #   def update_inheritable_document(doc, attrs)
-        #     if doc.respond_to?(:update_inherited_attributes)
-        #       doc.update_inherited_attributes(attrs)
-        #     else
-        #       doc.update_attributes(attrs)
-        #     end
-        #   end
-        # end
-      
         # Performs inheritance of documents.
         def inherit_documents
-          # puts "inherit_documents on #{self.class}:#{self._id}"
           return unless ancestor
           return unless list = ancestor.inheritable_documents
           for association, inheritable in list
@@ -227,7 +137,7 @@ module Vidibus
             end
           end
         end
-        
+
         # Performs actions before saving.
         def preprocess
           track_mutations
@@ -250,12 +160,14 @@ module Vidibus
           inheritable_documents.any?
         end
 
-        # Stores changed attributes.
+        # Stores changed attributes as #mutated_attributes unless they have been inherited recently.
         def track_mutations
           changed_items = new_record? ? attributes.keys : changes.keys
           changed_items -= ACQUIRED_ATTRIBUTES
           if inherited_attributes
-            changed_items -= inherited_attributes.keys
+            for key, value in inherited_attributes
+              changed_items.delete(key) if value == attributes[key]
+            end
             self.inherited_attributes = nil
           end
           self.mutated_attributes += changed_items
@@ -281,12 +193,6 @@ module Vidibus
         def update_inheritable_document_children(doc, attrs)
           inheritable_documents = self.class.inheritable_documents(doc, :keys => true)
           idocs = attrs.only(*inheritable_documents)
-          
-          # puts "_collection = #{_collection.inspect}"
-          # puts "_selector = #{doc._selector.inspect}"
-          # puts "_position = #{doc._position.inspect}"
-          # puts "_path = #{doc._path.inspect}"
-
           query = {}
           for k,v in idocs
             query["#{doc._position}.#{k}"] = v

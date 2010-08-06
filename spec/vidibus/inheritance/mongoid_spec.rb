@@ -337,6 +337,15 @@ describe "Vidibus::Inheritance::Mongoid" do
       @inheritor.name.should eql("Leah")
     end
     
+    it "should preserve changes on inheritor" do
+      @inheritor = Model.create(:ancestor => @ancestor)
+      @inheritor.update_attributes(:name => "Sara")
+      @inheritor.mutated_attributes.should eql(["name"])
+      @ancestor.update_attributes(:name => "Leah")
+      @inheritor.reload
+      @inheritor.name.should eql("Sara")
+    end
+    
     it "should not update inheritor if acquired attributes were changed on ancestor" do
       @inheritor.inherit_from!(@ancestor)
       Model::ACQUIRED_ATTRIBUTES.should include("updated_at")

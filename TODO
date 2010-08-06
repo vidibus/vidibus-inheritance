@@ -3,3 +3,5 @@ Use delayed_job
 Should uuids of inheritors be stored on ancestor?
 
 Use uuid for children to ensure portability across the network?
+
+Get ACQUIRED_ATTRIBUTES from each document class, if available
