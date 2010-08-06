@@ -28,6 +28,7 @@ class Puppet
   validates :name, :presence => true
   embedded_in :child, :inverse_of => :puppets
   embedded_in :model, :inverse_of => :puppets
+  embedded_in :location, :inverse_of => :puppets
   embeds_one :location
 end
 
@@ -39,6 +40,7 @@ class Location
   embedded_in :model, :inverse_of => :location
   embedded_in :child, :inverse_of => :location
   embedded_in :puppet, :inverse_of => :location
+  embeds_many :puppets
 end
 
 class Manager
@@ -436,7 +438,6 @@ describe "Vidibus::Inheritance::Mongoid" do
       it "should inherit embedded documents of subobjects" do
         @ancestor.children.first.puppets.create(:name => "Goofy")
         @ancestor.save
-        @ancestor.children.first.puppets.should have(1).puppet
         @inheritor.reload
         @inheritor.children.first.puppets.should have(1).puppet
       end
@@ -482,6 +483,13 @@ describe "Vidibus::Inheritance::Mongoid" do
         @ancestor.location.mutated.should be_true
         @inheritor.reload
         @inheritor.location.mutated.should be_false
+      end
+      
+      it "should inherit embedded documents of subobject" do
+        @ancestor.location.puppets.create(:name => "Goofy")
+        @ancestor.save
+        @inheritor.reload
+        @inheritor.location.puppets.should have(1).puppet
       end
     end
     
@@ -548,6 +556,13 @@ describe "Vidibus::Inheritance::Mongoid" do
           @inheritor.reload
           @inheritor.children.first.name.should eql("Luke")
         end
+
+        it "should inherit embedded documents of subobjects" do
+          @grand_ancestor.children.first.puppets.create(:name => "Goofy")
+          @grand_ancestor.save
+          @inheritor.reload
+          @inheritor.children.first.puppets.should have(1).puppet
+        end
       end
       
       context "with embedded items" do
@@ -562,7 +577,7 @@ describe "Vidibus::Inheritance::Mongoid" do
           @inheritor.location.should_not be_nil
         end
 
-        it "should inherit subobjects when relationship gets established" do
+        it "should inherit subobject when relationship gets established" do
           ancestor = Model.new
           ancestor.inherit_from!(@grand_ancestor)
           inheritor = Model.new
@@ -583,6 +598,13 @@ describe "Vidibus::Inheritance::Mongoid" do
           @inheritor.reload
           @grand_ancestor.location.should be_nil
           @inheritor.location.should be_nil
+        end
+        
+        it "should inherit embedded documents of subobject" do
+          @grand_ancestor.location.puppets.create(:name => "Goofy")
+          @grand_ancestor.save
+          @inheritor.reload
+          @inheritor.location.puppets.should have(1).puppet
         end
       end
     end
