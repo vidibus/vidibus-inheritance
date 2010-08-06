@@ -429,6 +429,7 @@ describe "Vidibus::Inheritance::Mongoid" do
         Child.send(:define_method, :update_inherited_attributes) do
           self.update_attributes(:name => "Callback")
         end
+        Child.send(:protected, :update_inherited_attributes)
         @ancestor.children.first.name = "Luke"
         @ancestor.save
         Child.send(:remove_method, :update_inherited_attributes)

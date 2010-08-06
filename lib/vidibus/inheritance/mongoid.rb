@@ -184,7 +184,7 @@ module Vidibus
         # This will perform #update_inherited_attributes on document, if this callback method is available.
         def update_inheritable_document_attributes(doc, attrs)
           if doc.respond_to?(:update_inherited_attributes)
-            doc.update_inherited_attributes(attrs)
+            doc.send(:update_inherited_attributes, attrs)
           else
             doc.update_attributes(attrs)
           end
