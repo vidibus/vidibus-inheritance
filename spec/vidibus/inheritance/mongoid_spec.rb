@@ -432,6 +432,14 @@ describe "Vidibus::Inheritance::Mongoid" do
         @inheritor.reload
         @inheritor.children.first.mutated.should be_false
       end
+      
+      it "should inherit embedded documents of subobjects" do
+        @ancestor.children.first.puppets.create(:name => "Goofy")
+        @ancestor.save
+        @ancestor.children.first.puppets.should have(1).puppet
+        @inheritor.reload
+        @inheritor.children.first.puppets.should have(1).puppet
+      end
     end
     
     context "with embedded items" do
