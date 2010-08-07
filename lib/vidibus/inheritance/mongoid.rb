@@ -190,6 +190,8 @@ module Vidibus
           end
         end
         
+        # Updates children of given embedded document.
+        # Because update_attributes won't modify the hash of children, a custom database update is needed.
         def update_inheritable_document_children(doc, attrs)
           inheritable_documents = self.class.inheritable_documents(doc, :keys => true)
           idocs = attrs.only(*inheritable_documents)
