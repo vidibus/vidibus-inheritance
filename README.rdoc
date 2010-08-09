@@ -5,6 +5,15 @@ This gem is part of the open-source Vidibus framework: http://www.vidibus.org
 It allows inheritance of objects for Rails 3 with Mongoid. It will update all attributes and embedded documents of inheritors when ancestor gets changed. Custom attributes (mutations) of inheritors will not be overridden, unless a :reset option is set.
 
 
+== Installation
+
+Add the dependency to the Gemfile of your application:
+
+  gem "vidibus-inheritance"
+
+Then call bundle install on your console.
+
+
 == Usage
 
   class Model
@@ -65,11 +74,11 @@ To control how inherited data will be updated, you may define a callback method 
   end
 
 
-== Thank you
-
-The development of this gem was sponsored by Käuferportal: http://www.kaeuferportal.de
-
-
 == Copyright
 
-Copyright (c) 2010 Andre Pankratz and Vidibus. See LICENSE for details.
+Copyright (c) 2010 Andre Pankratz. See LICENSE for details.
+
+
+== Thank you!
+
+The development of this gem was sponsored by Käuferportal: http://www.kaeuferportal.de
