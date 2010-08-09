@@ -69,4 +69,4 @@ The development of this gem was sponsored by Käuferportal: http://www.kaeuferpo
 
 == Copyright
 
-Copyright (c) 2010 Andre Pankratz. See LICENSE for details.
+Copyright (c) 2010 Andre Pankratz and Vidibus. See LICENSE for details.
