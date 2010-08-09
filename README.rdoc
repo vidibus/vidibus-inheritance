@@ -1,6 +1,6 @@
 = vidibus-inheritance
 
-This gem is part of the open-source Vidibus framework: http://www.vidibus.org
+This gem is part of the open source SOA framework Vidibus: http://www.vidibus.org
 
 It allows inheritance of objects for Rails 3 with Mongoid. It will update all attributes and embedded documents of inheritors when ancestor gets changed. Custom attributes (mutations) of inheritors will not be overridden, unless a :reset option is set.
 
@@ -16,12 +16,16 @@ Then call bundle install on your console.
 
 == Usage
 
+Include the Vidibus::Uuid::Inheritance module in your Mongoid model:
+
   class Model
     include Mongoid::Document
     include Vidibus::Uuid::Mongoid
     include Vidibus::Inheritance::Mongoid
     field :name
   end
+  
+To establish a inheritance relationship, add ancestor to a model of same class:
   
   ancestor = Model.create(:name => "Anna")
   
@@ -33,10 +37,14 @@ Then call bundle install on your console.
   inheritor = Model.create(:ancestor => ancestor)
 
 
+=== Mongoid configuration
+
 When inheriting, the attribute :_reference_id will be set on embedded documents of inherited objects. So make sure this field is available or Mongoid is configured to allow dynamic fields. Add to config/mongoid.yml:
 
   allow_dynamic_fields: true
 
+
+=== Acquired attributes
 
 All attributes will be inherited, except these ACQUIRED_ATTRIBUTES:
 
@@ -51,6 +59,8 @@ All attributes will be inherited, except these ACQUIRED_ATTRIBUTES:
   versions
 
 
+=== Manage mutations of embedded documents
+
 All custom changes on inherited objects will be stored in #mutated_attributes. On embedded documents of inherited objects, however, mutations of attributes will not be tracked. But you may flag a document as mutated when applying custom values:
 
   class Job
@@ -64,7 +74,6 @@ All custom changes on inherited objects will be stored in #mutated_attributes. O
       self.mutated = true
     end
   end
-
 
 To control how inherited data will be updated, you may define a callback method and check #mutated:
 
