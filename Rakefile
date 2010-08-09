@@ -5,8 +5,8 @@ begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
     gem.name = "vidibus-inheritance"
-    gem.summary = %Q{Provides inheritance for models}
-    gem.description = %Q{Provides inheritance for models}
+    gem.summary = %Q{Provides inheritance for models.}
+    gem.description = %Q{This gem allows inheritance of objects for Rails 3 with Mongoid. It will update all attributes and embedded documents of inheritors when ancestor gets changed.}
     gem.email = "andre@vidibus.com"
     gem.homepage = "http://github.com/vidibus/vidibus-inheritance"
     gem.authors = ["Andre Pankratz"]

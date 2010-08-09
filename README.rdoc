@@ -1,25 +1,71 @@
 = vidibus-inheritance
 
-Description goes here.
+This gem allows inheritance of objects for Rails 3 with Mongoid. It will update all attributes and embedded documents of inheritors when ancestor gets changed. Custom attributes (mutations) of inheritors will not be overridden, unless a :reset option is set.
 
-Will only work if dynamic adding of fields is allowed.
 
-To perform check if update should be applied to subobject, define a callback method:
+== Usage
 
-  def update_inheritance?(attrs)
-    # return true to allow update
+  class Model
+    include Mongoid::Document
+    include Vidibus::Uuid::Mongoid
+    include Vidibus::Inheritance::Mongoid
+    field :name
+  end
+  
+  ancestor = Model.create(:name => "Anna")
+  
+  # To establish a relation, call #inherit_from!
+  inheritor = Model.new
+  inheritor.inherit_from!(ancestor)
+  
+  # ...or set :ancestor attribute
+  inheritor = Model.create(:ancestor => ancestor)
+
+
+When inheriting, the attribute :_reference_id will be set on embedded documents of inherited objects. So make sure this field is available or Mongoid is configured to allow dynamic fields. Add to config/mongoid.yml:
+
+  allow_dynamic_fields: true
+
+
+All attributes will be inherited, except these ACQUIRED_ATTRIBUTES:
+
+  _id
+  uuid
+  ancestor_uuid
+  mutated_attributes
+  mutated
+  created_at
+  updated_at
+  version
+  versions
+
+
+All custom changes on inherited objects will be stored in #mutated_attributes. On embedded documents of inherited objects, however, mutations of attributes will not be tracked. But you may flag a document as mutated when applying custom values:
+
+  class Job
+    include Mongoid::Document
+    field :salary
+    field :mutated, :type => Boolean
+  
+    def set_custom_salary(amount)
+      self.salary = amount
+      self.mutated = true
+    end
   end
 
 
-== Note on Patches/Pull Requests
- 
-* Fork the project.
-* Make your feature addition or bug fix.
-* Add tests for it. This is important so I don't break it in a
-  future version unintentionally.
-* Commit, do not mess with rakefile, version, or history.
-  (if you want to have your own version, that is fine but bump version in a commit by itself I can ignore when I pull)
-* Send me a pull request. Bonus points for topic branches.
+To control how inherited data will be updated, you may define a callback method and check #mutated:
+
+  def update_inherited_attributes(attrs)
+    attrs.delete("salary") if mutated? # preserve custom salary
+    update_attributes(attrs)
+  end
+
+
+== Thank you
+
+The development of this gem was sponsored by Käuferportal: http://www.kaeuferportal.de
+
 
 == Copyright
 

@@ -496,6 +496,17 @@ describe "Vidibus::Inheritance::Mongoid" do
         inheritor.name.should eql("Jenny")
       end
       
+      it "should allow resetting mutated attributes" do
+        ancestor.update_attributes(:name => "Sara")
+        ancestor.name.should eql("Sara")
+        inheritor.reload
+        inheritor.name.should eql("Sara")
+        ancestor.inherit!(:reset => :name)
+        ancestor.name.should eql("Anna")
+        inheritor.reload
+        inheritor.name.should eql("Anna")
+      end
+      
       context "with embedded collections" do
         before do
           grand_ancestor.children.create(:name => "Han")
