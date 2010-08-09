@@ -18,11 +18,6 @@ module Vidibus
 
         before_validation :preprocess 
         after_save :postprocess
-      
-        # Callback of Mongoid when deleting a collection item on a parent object.
-        def remove(*args)
-          super(*args)
-        end
 
         # Setter for ancestor.
         def ancestor=(obj)
