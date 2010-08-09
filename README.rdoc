@@ -2,7 +2,7 @@
 
 This gem is part of the open source SOA framework Vidibus: http://www.vidibus.org
 
-It allows inheritance of objects for Rails 3 with Mongoid. It will update all attributes and embedded documents of inheritors when ancestor gets changed. Custom attributes (mutations) of inheritors will not be overridden, unless a :reset option is set.
+It allows inheritance of objects and is depends on Rails 3 and Mongoid. It will update all attributes and embedded documents of inheritors when ancestor gets changed. Custom attributes (mutations) of inheritors will not be overridden, unless a :reset option is set.
 
 
 == Installation
@@ -25,7 +25,7 @@ Include the Vidibus::Uuid::Inheritance module in your Mongoid model:
     field :name
   end
   
-To establish a inheritance relationship, add ancestor to a model of same class:
+To establish an inheritance relationship, add ancestor to a model of same class:
   
   ancestor = Model.create(:name => "Anna")
   
