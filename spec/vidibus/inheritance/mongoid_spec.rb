@@ -230,10 +230,6 @@ describe "Vidibus::Inheritance::Mongoid" do
   end
   
   describe "#inheritors" do
-    # before(:each) do
-    #   ancestor = Model.create!(:name => "Anna", :age => 35)
-    # end
-    
     it "should return all inheritors" do
       inheritor1 = Model.create(:ancestor => ancestor)
       inheritor2 = Model.create(:ancestor => ancestor)
