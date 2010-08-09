@@ -1,5 +1,3 @@
-Use delayed_job
-
-Use uuid for children to ensure portability across the network?
-
-Get ACQUIRED_ATTRIBUTES as class variable from each document, if available
+* Use delayed_job for inheritance across a huge pedigree.
+* Maybe use UUID for children to ensure portability across the network?
+* Get ACQUIRED_ATTRIBUTES as class variable from each document, if available.
