@@ -109,7 +109,7 @@ module Vidibus
       #   inherit!(:reset => [:name, :age]) => # Overwrites name and age
       #
       def inherit!(options = {})
-        self.inherit_attributes(options)
+        inherit_attributes(options)
         self.save!
       end
     
@@ -131,7 +131,7 @@ module Vidibus
         self.class.inheritable_documents(self, options)
       end
 
-      protected
+      private
     
       # Performs inheritance of attributes while excluding acquired and mutated ones.
       # Accepts :reset option to overwrite mutated attributes.
@@ -149,7 +149,7 @@ module Vidibus
         exceptions += ancestor.inheritable_documents.keys
         self.attributes = self.inherited_attributes = ancestor.attributes.except(*exceptions)
       end
-      
+
       # Performs inheritance of documents.
       def inherit_documents
         return unless ancestor
@@ -196,7 +196,7 @@ module Vidibus
           end
         end
       end
-
+      
       # Performs actions after saving.
       def postprocess
         inherit_documents if inheritor? and embed?
