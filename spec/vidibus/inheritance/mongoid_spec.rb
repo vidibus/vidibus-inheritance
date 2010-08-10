@@ -217,10 +217,36 @@ describe "Vidibus::Inheritance::Mongoid" do
       twin.age.should eql(anna.age)
     end
     
-    it "should keep inheritance intact" do
+    it "should preserve ancestor relation" do
       anna.inherit_from!(ancestor)
       twin = anna.clone!
       twin.ancestor.should eql(ancestor)
+    end
+    
+    it "should not clone inheritors (should it?)" do
+      anna.inherit_from!(ancestor)
+      twin = ancestor.clone!
+      twin.inheritors.should be_empty
+    end
+    
+    it "should clone embedded documents" do
+      anna.children.create(:name => "Lisa")
+      twin = anna.clone!
+      twin.children.should have(1).child
+    end
+    
+    it "should clone a single embedded document" do
+      anna.create_location(:name => "Bathroom")
+      twin = anna.clone!
+      twin.location.name.should eql("Bathroom")
+    end
+    
+    it "should clone children of embedded documents" do
+      lisa = anna.children.create(:name => "Lisa")
+      lisa.puppets.create(:name => "Gonzo")
+      twin = anna.clone!
+      lisa_twin = twin.children.first
+      lisa_twin.puppets.should have(1).puppet
     end
   end
   
