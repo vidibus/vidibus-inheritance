@@ -3,7 +3,7 @@ module Vidibus
     module Mongoid
       extend ActiveSupport::Concern
 
-      ACQUIRED_ATTRIBUTES = %w[_id uuid ancestor_uuid mutated_attributes mutated created_at updated_at version versions]
+      ACQUIRED_ATTRIBUTES = %w[_id _type uuid ancestor_uuid mutated_attributes mutated created_at updated_at version versions]
       
       included do
         attr_accessor :inherited_attributes, :_inherited
@@ -16,8 +16,9 @@ module Vidibus
         validates :ancestor_uuid, :uuid => { :allow_blank => true }
         validates :ancestor, :ancestor => true, :if => :ancestor_uuid?
 
-        before_validation :preprocess 
-        after_save :postprocess
+        set_callback :validate, :before, :inherit_attributes, :if => :inherit?
+        set_callback :save, :before, :track_mutations
+        set_callback :save, :after, :postprocess
 
         # Setter for ancestor.
         def ancestor=(obj)
@@ -67,12 +68,13 @@ module Vidibus
         def mutated?
           @is_mutated ||= mutated || mutated_attributes.any?
         end
-
+        
         protected
       
         # Performs inheritance of attributes while excluding acquired and mutated ones.
         # Accepts :reset option to overwrite mutated attributes.
         def inherit_attributes(options = {})
+          track_mutations
           self._inherited = true
           exceptions = ACQUIRED_ATTRIBUTES
           reset = options[:reset]
@@ -133,18 +135,17 @@ module Vidibus
           end
         end
 
-        # Performs actions before saving.
-        def preprocess
-          track_mutations
-          inherit_attributes if inherit?
-        end
-      
         # Performs actions after saving.
         def postprocess
-          inherit_documents if embed?
+          inherit_documents if inheritor? and embed?
           update_inheritors
         end
-
+        
+        # Returns true if object is an inheritor.
+        def inheritor?
+          ancestor
+        end
+        
         # Returns true if inheritance should be applied on inheritor.
         def inherit?
           !_inherited and ancestor and (new_record? or ancestor_uuid_changed?)
@@ -210,23 +211,54 @@ module Vidibus
           return unless inheritors.any?
           inheritors.each(&:inherit!)
         end
+
         
-        class << self
+        
+        # class << self
+        #       
+        #   # Returns embedded documents of given document.
+        #   def inheritable_documents(doc, options = {})
+        #     keys = options[:keys]
+        #     collection = keys ? [] : {}
+        #     for name, association in doc.associations
+        #       next unless association.embedded?
+        #       if keys
+        #         collection << name
+        #       else
+        #         collection[name] = doc.send(name)
+        #       end
+        #     end
+        #     collection
+        #   end
+        # end
+      end
       
-          # Returns embedded documents of given document.
-          def inheritable_documents(doc, options = {})
-            keys = options[:keys]
-            collection = keys ? [] : {}
-            for name, association in doc.associations
-              next unless association.embedded?
-              if keys
-                collection << name
-              else
-                collection[name] = doc.send(name)
-              end
+      
+      
+      module ClassMethods #:nodoc
+        
+        # def validate(*args)
+        #   puts ">> validate"
+        #   super
+        # end
+        
+        # def _inheritance_callbacks(*args)
+        #   puts "args = #{args.inspect}"
+        # end
+        
+        # Returns embedded documents of given document.
+        def inheritable_documents(doc, options = {})
+          keys = options[:keys]
+          collection = keys ? [] : {}
+          for name, association in doc.associations
+            next unless association.embedded?
+            if keys
+              collection << name
+            else
+              collection[name] = doc.send(name)
             end
-            collection
           end
+          collection
         end
       end
     end

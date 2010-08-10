@@ -12,6 +12,11 @@ class Model
   embeds_one :location
 end
 
+class ModelWithCallback < Model
+  before_validation :trudify
+  def trudify; self.name = "Trude"; end
+end
+
 class Child
   include Mongoid::Document
   field :name
@@ -113,6 +118,12 @@ describe "Vidibus::Inheritance::Mongoid" do
       inheritor = Model.create(:name => "Anna")
       inheritor.update_attributes(:name => "Jenny")
       inheritor.mutated_attributes.should eql(["name"])
+    end
+    
+    it "should be tracked if data gets modified in a before_validation callback" do
+      model = ModelWithCallback.create
+      model.name.should eql("Trude")
+      model.mutated_attributes.should eql(["name"])
     end
   end
   

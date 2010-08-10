@@ -49,6 +49,7 @@ When inheriting, the attribute :_reference_id will be set on embedded documents 
 All attributes will be inherited, except these ACQUIRED_ATTRIBUTES:
 
   _id
+  _type
   uuid
   ancestor_uuid
   mutated_attributes
