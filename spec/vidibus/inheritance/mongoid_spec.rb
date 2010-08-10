@@ -86,13 +86,6 @@ describe "Vidibus::Inheritance::Mongoid" do
     end
   end
   
-  describe "#ancestor" do
-    it "should return an ancestor object by uuid" do
-      inheritor.ancestor_uuid = ancestor.uuid
-      inheritor.ancestor.should eql(ancestor)
-    end
-  end
-  
   describe "#ancestor=" do
     it "should set an ancestor object" do
       inheritor.ancestor = ancestor
@@ -115,6 +108,21 @@ describe "Vidibus::Inheritance::Mongoid" do
       invalid_ancestor = Manager.create(:name => "Robin")
       inheritor.ancestor = invalid_ancestor
       inheritor.ancestor.should eql(invalid_ancestor)
+    end
+  end
+  
+  describe "#ancestor" do
+    it "should return an ancestor object by uuid" do
+      inheritor.ancestor_uuid = ancestor.uuid
+      inheritor.ancestor.should eql(ancestor)
+    end
+  end
+
+  describe "#ancestors" do
+    it "should return a list of all ancestors" do
+      inheritor = Model.create!(:ancestor => ancestor)
+      nextgen = Model.create!(:ancestor => inheritor)
+      nextgen.ancestors.should eql([inheritor, ancestor])
     end
   end
   

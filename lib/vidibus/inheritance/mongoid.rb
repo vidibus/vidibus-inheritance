@@ -87,11 +87,22 @@ module Vidibus
           self.class.where(:uuid => ancestor_uuid).first if ancestor_uuid
         end
       end
-    
+      
+      # Returns a list of all ancestors ordered by inheritance distance.
+      def ancestors
+        @ancestors ||= [].tap do |bloodline|
+          obj = self
+          while true do
+            break unless obj = obj.ancestor
+            bloodline << obj
+          end
+        end
+      end
+      
       # Performs inheritance and saves instance with force.
       # Accepts :reset option to overwrite mutated attributes.
       # 
-      # Usage:
+      # Examples:
       #
       #   inherit!(:reset => true)          => # Overwrites all mutated attributes
       #   inherit!(:reset => :name)         => # Overwrites name only
@@ -103,7 +114,7 @@ module Vidibus
       end
     
       # Performs inheritance from given object.
-      # Accepts :reset option to overwrite mutated attributes.
+      # It sets the ancestor and then calls #inherit! with given options.
       def inherit_from!(obj, options = {})
         self.ancestor = obj
         self.inherit!(options)
