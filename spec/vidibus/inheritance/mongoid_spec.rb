@@ -64,8 +64,9 @@ end
 
 describe "Vidibus::Inheritance::Mongoid" do
   let(:ancestor) { Model.create }
-  let(:anna) { Model.create!(:name => "Anna", :age => 35) }
   let(:inheritor) { Model.new }
+  let(:anna) { Model.create!(:name => "Anna", :age => 35) }
+  let(:jeanny) { Model.create!(:name => "Jeanny", :age => 17) }
   
   describe "validation" do
     it "should fail if ancestor does not have an UUID" do
@@ -250,7 +251,74 @@ describe "Vidibus::Inheritance::Mongoid" do
     end
   end
   
-  describe "inheritance" do    
+  describe "#inheritable_documents" do
+    it "should perform .inheritable_documents with current object" do
+      mock(Model).inheritable_documents(anna, {})
+      anna.inheritable_documents
+    end
+    
+    it "should allow options" do
+      mock(Model).inheritable_documents(anna, :keys => true)
+      anna.inheritable_documents(:keys => true)
+    end
+  end
+  
+  describe ".inheritable_documents" do
+    it "should return embedded relations of a given object" do
+      docs = Model.inheritable_documents(anna)
+      docs.length.should eql(3)
+      docs.should have_key("location")
+      docs.should have_key("children")
+      docs.should have_key("puppets")
+    end
+    
+    it "should return a collection of documents embedded by embeds_many" do
+      anna.children.create(:name => "Lisa")
+      docs = Model.inheritable_documents(anna)
+      docs["children"].should eql([anna.children.first])
+    end
+    
+    it "should return a document embedded by embeds_one" do
+      anna.create_location(:name => "Beach")
+      docs = Model.inheritable_documents(anna)
+      docs["location"].should eql(anna.location)
+    end
+    
+    it "should return the keys of embedded relations if option :keys is given" do
+      keys = Model.inheritable_documents(anna, :keys => true)
+      keys.should eql(%w[location puppets children])
+    end
+  end
+  
+  describe ".roots" do
+    before do
+      inheritor.inherit_from!(anna)
+      jeanny
+    end
+    
+    it "should return all model that have no ancestor" do
+      Model.all.to_a.should have(3).models
+      list = Model.roots.to_a
+      list.should have(2).models
+    end
+    
+    it "should return all model matching a given name" do
+      list = Model.roots(:name => ancestor.name).to_a
+      list.should have(1).models
+    end
+    
+    it "should return no model if given name is nil" do
+      list = Model.roots(:name => nil).to_a
+      list.should have(:no).models
+    end
+    
+    it "should return all models without ancestor if given name is nil but :ignore_nil is set" do
+      list = Model.roots(:name => nil, :ignore_nil => true).to_a
+      list.should have(2).models
+    end
+  end
+  
+  describe "inheritance" do
     it "should happen when creating objects" do
       ancestor # trigger object creation before mocking
       mock.instance_of(Model).inherit_attributes
