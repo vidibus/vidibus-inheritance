@@ -4,10 +4,11 @@ $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), "..", "lib"))
 require "rubygems"
 require "active_support/core_ext"
 require "spec"
+require "rr"
 require "mongoid"
 require "vidibus-uuid"
 require "vidibus-inheritance"
-require "rr"
+require "models"
 
 Mongoid.configure do |config|
   name = "vidibus-inheritance_test"
