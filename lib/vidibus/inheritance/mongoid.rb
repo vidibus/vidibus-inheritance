@@ -120,9 +120,9 @@ module Vidibus
         self.inherit!(options)
       end
     
-      # Returns list of objects that inherit from this ancestor.
+      # Returns inheritors of this ancestor.
       def inheritors
-        self.class.where(:ancestor_uuid => uuid).to_a
+        self.class.where(:ancestor_uuid => uuid)
       end
     
       # Returns embedded documents.

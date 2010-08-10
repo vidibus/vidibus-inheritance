@@ -191,9 +191,10 @@ describe "Vidibus::Inheritance::Mongoid" do
     it "should return all inheritors" do
       inheritor1 = Model.create(:ancestor => ancestor)
       inheritor2 = Model.create(:ancestor => ancestor)
-      ancestor.inheritors.should have(2).inheritors
-      ancestor.inheritors.should include(inheritor1)
-      ancestor.inheritors.should include(inheritor2)
+      list = ancestor.inheritors.to_a
+      list.should have(2).inheritors
+      list.should include(inheritor1)
+      list.should include(inheritor2)
     end
   end
   
@@ -247,6 +248,7 @@ describe "Vidibus::Inheritance::Mongoid" do
       twin = anna.clone!
       lisa_twin = twin.children.first
       lisa_twin.puppets.should have(1).puppet
+      # lisa_twin.puppets.first._id.should_not eql(lisa_twin.puppets.first._id)
     end
   end
   
