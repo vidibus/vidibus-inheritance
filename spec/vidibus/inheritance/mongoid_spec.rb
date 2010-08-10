@@ -209,6 +209,21 @@ describe "Vidibus::Inheritance::Mongoid" do
     end
   end
   
+  describe "#clone!" do
+    it "should create a sibling" do
+      twin = anna.clone!
+      twin.should_not eql(anna)
+      twin.name.should eql(anna.name)
+      twin.age.should eql(anna.age)
+    end
+    
+    it "should keep inheritance intact" do
+      anna.inherit_from!(ancestor)
+      twin = anna.clone!
+      twin.ancestor.should eql(ancestor)
+    end
+  end
+  
   describe ".inheritable_documents" do
     it "should return embedded relations of a given object" do
       docs = Model.inheritable_documents(anna)

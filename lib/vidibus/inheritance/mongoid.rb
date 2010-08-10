@@ -130,6 +130,14 @@ module Vidibus
       def inheritable_documents(options = {})
         self.class.inheritable_documents(self, options)
       end
+      
+      # Creates a sibling with identical inheritable attributes.
+      # Applies inheritance on new object.
+      def clone!
+        exceptions = ACQUIRED_ATTRIBUTES - ["ancestor_uuid"]
+        attrs = attributes.except(*exceptions)
+        self.class.create!(attrs)
+      end
 
       private
     
