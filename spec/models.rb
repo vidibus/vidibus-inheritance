@@ -65,3 +65,6 @@ class ValidatedModel
   attr_accessor :ancestor
   validates :ancestor, :ancestor => true
 end
+
+class ValidatedModelSubclass < ValidatedModel
+end
