@@ -12,8 +12,14 @@ describe "Vidibus::Inheritance::Validators::AncestorValidator" do
     model.valid?.should be_true
   end
   
-  it "should add an error, if ancestor is of a different class" do
+  it "should add an error if ancestor is of a different class" do
     model.ancestor = Clerk.new
+    model.valid?.should be_false
+    model.errors[:ancestor].should_not be_blank
+  end
+  
+  it "should add an error if ancestor is of a subclass" do
+    model.ancestor = ValidatedModelSubclass.new
     model.valid?.should be_false
     model.errors[:ancestor].should_not be_blank
   end
