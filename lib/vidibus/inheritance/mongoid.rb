@@ -57,21 +57,17 @@ module Vidibus
         end
         
         # Returns all objects that have no ancestor.
-        # Use with options to reduce matching set. 
+        # Accepts Mongoid criteria to reduce and sort matching set.
+        # Criteria API: http://mongoid.org/docs/querying/
         #
         # Examples:
         #   
-        #   Model.root                   # => All models without ancestor
-        #   Model.root(:name => "Laura") # => Only models named Laura
-        #
-        # If you set the option :ignore_nil to true, nil options will be ignored:
-        #
-        #   Model.root(:name => nil, :ignore_nil => true) 
-        #   # => All models without ancestor
+        #   Model.root                          # => All models without ancestor
+        #   Model.root.where(:name => "Laura")  # => Only models named Laura
+        #   Model.root.asc(:created_at)         # => All models, ordered by date of creation
         # 
-        def roots(options = {})
-          options.delete_if { |k,v| !v } if options.delete(:ignore_nil)
-          where(options.merge(:ancestor_uuid => nil)).all
+        def roots
+          where(:ancestor_uuid => nil)
         end
       end
     

@@ -291,19 +291,17 @@ describe "Vidibus::Inheritance::Mongoid" do
       list.should have(2).models
     end
     
-    it "should return all model matching a given name" do
-      list = Model.roots(:name => ancestor.name).to_a
+    it "should accept sorting criteria" do
+      Model.all.to_a.should have(3).models
+      stub_time!(1.hour.since)
+      anna.update_attributes(:age => 20)
+      list = Model.roots.desc(:updated_at).to_a
+      list[0].updated_at.should > list[1].updated_at
+    end
+    
+    it "should accept conditions" do
+      list = Model.roots.where(:name => ancestor.name).to_a
       list.should have(1).models
-    end
-    
-    it "should return no model if given name is nil" do
-      list = Model.roots(:name => nil).to_a
-      list.should have(:no).models
-    end
-    
-    it "should return all models without ancestor if given name is nil but :ignore_nil is set" do
-      list = Model.roots(:name => nil, :ignore_nil => true).to_a
-      list.should have(2).models
     end
   end
 end
