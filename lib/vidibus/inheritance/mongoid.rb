@@ -183,10 +183,9 @@ module Vidibus
                 doc = collection.create!(attrs)
               end
             end
-            
-            obsolete = existing_ids - inheritable.map { |i| i._id }
+            obsolete = (existing_ids - inheritable.map { |i| i._id }).compact
             if obsolete.any?
-              collection.destroy_all(:_reference_id => obsolete)
+              collection.delete_all(:conditions => { :_reference_id.in => obsolete })
             end
           
           # embeds_one
