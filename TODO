@@ -1,3 +1,4 @@
+* Removed items will be re-added when inheritance is performed again. Introduce paranoid behaviour for embedded collection items? Or add a list of deleted associations like _destroyed_children?
 * Use delayed_job for inheritance across a huge pedigree.
 * Maybe use UUID for children to ensure portability across the network?
 * Get ACQUIRED_ATTRIBUTES as class variable from each document, if available.
