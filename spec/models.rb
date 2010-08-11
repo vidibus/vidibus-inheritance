@@ -10,7 +10,7 @@ class Model
   embeds_one :location
 end
 
-class ModelWithCallback < Model
+class Trude < Model
   before_validation :trudify
   def trudify; self.name = "Trude"; end
 end

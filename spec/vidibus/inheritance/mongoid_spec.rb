@@ -60,7 +60,7 @@ describe "Vidibus::Inheritance::Mongoid" do
     end
     
     it "should be tracked if data gets modified in a before_validation callback" do
-      model = ModelWithCallback.create
+      model = Trude.create
       model.name.should eql("Trude")
       model.mutated_attributes.should eql(["name"])
     end

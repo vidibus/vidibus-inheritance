@@ -150,6 +150,16 @@ describe "Inheritance" do
       inheritor.children.should have(0).children
     end
     
+    it "should remove a single suboject without removing others on inheritor" do
+      inheritor.children.create(:name => "Leah")
+      inheritor.children.should have(2).children
+      ancestor.children.first.destroy
+      ancestor.save
+      ancestor.children.should have(0).children
+      inheritor.reload
+      inheritor.children.should have(1).child
+    end
+    
     it "should update subobjects" do
       ancestor.children.first.name = "Luke"
       ancestor.save
@@ -300,6 +310,16 @@ describe "Inheritance" do
         grand_ancestor.children.should have(0).children
         inheritor.reload
         inheritor.children.should have(0).children
+      end
+
+      it "should remove a single suboject without removing others on inheritor" do
+        inheritor.children.create(:name => "Leah")
+        inheritor.children.should have(2).children
+        grand_ancestor.children.first.destroy
+        grand_ancestor.save
+        grand_ancestor.children.should have(0).children
+        inheritor.reload
+        inheritor.children.should have(1).child
       end
 
       it "should update subobjects" do
