@@ -19,6 +19,7 @@ module Vidibus
         set_callback :validate, :before, :inherit_attributes, :if => :inherit?
         set_callback :save, :before, :track_mutations
         set_callback :save, :after, :postprocess
+        set_callback :destroy, :after, :destroy_inheritors
         
         # Returns true if attributes have been mutated.
         # This method must be included directly so that it will not be
@@ -275,6 +276,12 @@ module Vidibus
       def update_inheritors
         return unless inheritors.any?
         inheritors.each(&:inherit!)
+      end
+      
+      # Destroys inheritors.
+      def destroy_inheritors
+        return unless inheritors.any?
+        inheritors.each(&:destroy)
       end
     end
   end

@@ -99,6 +99,12 @@ describe "Inheritance" do
     valid.should be_valid
   end
   
+  it "should destroy inheritor when destroying ancestor" do
+    inheritor.inherit_from!(ancestor)
+    ancestor.destroy
+    expect { inheritor.reload }.to raise_error(Mongoid::Errors::DocumentNotFound)
+  end
+  
   context "with embedded collections" do
     before do
       inheritor.inherit_from!(ancestor)
@@ -276,6 +282,12 @@ describe "Inheritance" do
       ancestor.name.should eql("Anna")
       inheritor.reload
       inheritor.name.should eql("Anna")
+    end
+    
+    it "should destroy all inheritors when destroying ancestor" do
+      grand_ancestor.destroy
+      expect { ancestor.reload }.to raise_error(Mongoid::Errors::DocumentNotFound)
+      expect { inheritor.reload }.to raise_error(Mongoid::Errors::DocumentNotFound)
     end
     
     context "with embedded collections" do
