@@ -135,6 +135,7 @@ module Vidibus
         clone.inherit_from!(self)
         clone.ancestor = ancestor
         clone.mutated_attributes = mutated_attributes
+        clone.save
         clone
       end
 

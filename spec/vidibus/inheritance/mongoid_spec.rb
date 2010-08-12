@@ -256,6 +256,18 @@ describe "Vidibus::Inheritance::Mongoid" do
       lisa_twin.puppets.should have(1).puppet
       # lisa_twin.puppets.first._id.should_not eql(lisa_twin.puppets.first._id)
     end
+    
+    it "should set no ancestor if original did not have one" do
+      anna.ancestor.should be_nil
+      twin = anna.clone!
+      twin.reload.ancestor.should be_nil
+    end
+    
+    it "should set ancestor of orginal" do
+      anna.inherit_from!(ancestor)
+      twin = anna.clone!
+      twin.reload.ancestor.should eql(ancestor)
+    end
   end
   
   describe ".inheritable_documents" do
