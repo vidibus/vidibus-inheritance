@@ -4,6 +4,7 @@ describe "Inheritance" do
   let(:ancestor) { Model.create }
   let(:inheritor) { Model.new }
   let(:anna) { Model.create!(:name => "Anna", :age => 35) }
+  let(:leah) { Model.create!(:name => "Leah", :age => 30) }
   
   it "should happen when creating objects" do
     ancestor # trigger object creation before mocking
@@ -199,6 +200,32 @@ describe "Inheritance" do
       inheritor.reload
       inheritor.children.first.puppets.should have(1).puppet
     end
+    
+    context "switching the ancestor" do
+      it "should remove previously inherited subobjects" do
+        inheritor.inherit_from!(leah)
+        inheritor.children.should have(0).children
+      end
+      
+      it "should keep previously inherited subobjects if they have been mutated" do
+        inheritor.children.first.update_attributes(:mutated => true)
+        inheritor.inherit_from!(leah)
+        inheritor.children.should have(1).child
+      end
+      
+      it "should keep own subobjects" do
+        inheritor.children.create(:name => "Ronja")
+        inheritor.inherit_from!(leah)
+        inheritor.children.should have(1).child
+      end
+
+      it "should add subobjects of new ancestor" do
+        leah.children.create(:name => "Luke")
+        inheritor.inherit_from!(leah)
+        inheritor.children.should have(1).child
+        inheritor.children.first.name.should eql("Luke")
+      end
+    end
   end
   
   context "with embedded items" do
@@ -393,4 +420,5 @@ describe "Inheritance" do
       end
     end
   end
+
 end

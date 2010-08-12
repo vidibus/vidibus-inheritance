@@ -169,12 +169,9 @@ module Vidibus
           if inheritable.is_a?(Array)
             collection = new_record? ? self.send(association) : self.reload.send(association)
             existing_ids = collection.map do |a| 
-              begin
-                a._reference_id
-              rescue
-              end
+              a.try!(:_reference_id)
             end
-            
+
             for obj in inheritable
               attrs = inheritable_document_attributes(obj)
               if existing_ids.include?(obj._id)
@@ -185,6 +182,12 @@ module Vidibus
               end
             end
             obsolete = (existing_ids - inheritable.map { |i| i._id }).compact
+            
+            # Exclude mutated items
+            obsolete -= collection.select do |c| 
+              obsolete.include?(c.try!(:_reference_id)) and c.try!(:mutated?)
+            end.map { |c| c.try!(:_reference_id) }
+
             if obsolete.any?
               collection.delete_all(:conditions => { :_reference_id.in => obsolete })
             end
