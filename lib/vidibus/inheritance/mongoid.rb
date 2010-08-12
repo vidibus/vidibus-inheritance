@@ -128,14 +128,15 @@ module Vidibus
         self.class.inheritable_documents(self, options)
       end
       
-      # Creates a sibling with identical inheritable attributes first
-      # by inheriting from self and then applying ancestry of self.
+      # Creates a sibling with identical inheritable attributes.
+      # First it inherits from self and then applies ancestry of self.
       def clone!
         clone = self.class.new
         clone.inherit_from!(self)
         clone.ancestor = ancestor
         clone.mutated_attributes = mutated_attributes
-        clone.save
+        clone.inherited_attributes = inherited_attributes
+        clone.save!
         clone
       end
 

@@ -258,15 +258,24 @@ describe "Vidibus::Inheritance::Mongoid" do
     end
     
     it "should set no ancestor if original did not have one" do
+      anna.ancestor_uuid.should be_nil
       anna.ancestor.should be_nil
       twin = anna.clone!
-      twin.reload.ancestor.should be_nil
+      twin.reload
+      twin.ancestor_uuid.should be_nil
+      twin.ancestor.should be_nil
     end
     
     it "should set ancestor of orginal" do
       anna.inherit_from!(ancestor)
       twin = anna.clone!
       twin.reload.ancestor.should eql(ancestor)
+    end
+    
+    it "should clone mutated_attributes" do
+      anna.inherit_from!(ancestor)
+      twin = anna.clone!
+      twin.reload.mutated_attributes.should eql(anna.mutated_attributes)
     end
   end
   
