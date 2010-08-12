@@ -211,72 +211,7 @@ describe "Vidibus::Inheritance::Mongoid" do
   end
   
   describe "#clone!" do
-    it "should create a sibling" do
-      twin = anna.clone!
-      twin.should_not eql(anna)
-      twin.name.should eql(anna.name)
-      twin.age.should eql(anna.age)
-    end
-    
-    it "should preserve ancestor relation" do
-      anna.inherit_from!(ancestor)
-      twin = anna.clone!
-      twin.ancestor.should eql(ancestor)
-    end
-    
-    it "should not clone inheritors (should it?)" do
-      anna.inherit_from!(ancestor)
-      twin = ancestor.clone!
-      twin.inheritors.should be_empty
-    end
-    
-    it "should clone embedded documents" do
-      anna.children.create(:name => "Lisa")
-      twin = anna.clone!
-      twin.children.should have(1).child
-    end
-    
-    it "should set unique _id on embedded documents" do
-      anna.children.create(:name => "Lisa")
-      twin = anna.clone!
-      twin.children.first._id.should_not eql(anna.children.first._id)
-    end
-    
-    it "should clone a single embedded document" do
-      anna.create_location(:name => "Bathroom")
-      twin = anna.clone!
-      twin.location.name.should eql("Bathroom")
-    end
-    
-    it "should clone children of embedded documents" do
-      lisa = anna.children.create(:name => "Lisa")
-      lisa.puppets.create(:name => "Gonzo")
-      twin = anna.clone!
-      lisa_twin = twin.children.first
-      lisa_twin.puppets.should have(1).puppet
-      # lisa_twin.puppets.first._id.should_not eql(lisa_twin.puppets.first._id)
-    end
-    
-    it "should set no ancestor if original did not have one" do
-      anna.ancestor_uuid.should be_nil
-      anna.ancestor.should be_nil
-      twin = anna.clone!
-      twin.reload
-      twin.ancestor_uuid.should be_nil
-      twin.ancestor.should be_nil
-    end
-    
-    it "should set ancestor of orginal" do
-      anna.inherit_from!(ancestor)
-      twin = anna.clone!
-      twin.reload.ancestor.should eql(ancestor)
-    end
-    
-    it "should clone mutated_attributes" do
-      anna.inherit_from!(ancestor)
-      twin = anna.clone!
-      twin.reload.mutated_attributes.should eql(anna.mutated_attributes)
-    end
+    # see cloning_spec.rb
   end
   
   describe ".inheritable_documents" do
