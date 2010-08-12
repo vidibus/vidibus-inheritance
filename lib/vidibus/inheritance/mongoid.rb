@@ -74,7 +74,7 @@ module Vidibus
     
       # Setter for ancestor.
       def ancestor=(obj)
-        self.ancestor_uuid = obj.uuid
+        self.ancestor_uuid = obj ? obj.uuid : nil
         @ancestor = obj
       end
     
@@ -128,12 +128,14 @@ module Vidibus
         self.class.inheritable_documents(self, options)
       end
       
-      # Creates a sibling with identical inheritable attributes.
-      # Applies inheritance on new object.
+      # Creates a sibling with identical inheritable attributes first
+      # by inheriting from self and then applying ancestry of self.
       def clone!
-        exceptions = ACQUIRED_ATTRIBUTES - ["ancestor_uuid"]
-        attrs = attributes.except(*exceptions)
-        self.class.create!(attrs)
+        clone = self.class.new
+        clone.inherit_from!(self)
+        clone.ancestor = ancestor
+        clone.mutated_attributes = mutated_attributes
+        clone
       end
 
       private

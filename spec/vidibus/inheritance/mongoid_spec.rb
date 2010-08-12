@@ -236,6 +236,12 @@ describe "Vidibus::Inheritance::Mongoid" do
       twin.children.should have(1).child
     end
     
+    it "should set unique _id on embedded documents" do
+      anna.children.create(:name => "Lisa")
+      twin = anna.clone!
+      twin.children.first._id.should_not eql(anna.children.first._id)
+    end
+    
     it "should clone a single embedded document" do
       anna.create_location(:name => "Bathroom")
       twin = anna.clone!
