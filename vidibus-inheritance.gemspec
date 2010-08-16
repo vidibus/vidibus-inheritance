@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Andre Pankratz"]
-  s.date = %q{2010-08-11}
+  s.date = %q{2010-08-12}
   s.description = %q{This gem allows inheritance of objects for Rails 3 with Mongoid. It will update all attributes and embedded documents of inheritors when ancestor gets changed.}
   s.email = %q{andre@vidibus.com}
   s.extra_rdoc_files = [
@@ -33,6 +33,7 @@ Gem::Specification.new do |s|
      "spec/models.rb",
      "spec/spec.opts",
      "spec/spec_helper.rb",
+     "spec/vidibus/inheritance/cloning_spec.rb",
      "spec/vidibus/inheritance/inheritance_spec.rb",
      "spec/vidibus/inheritance/mongoid_spec.rb",
      "spec/vidibus/inheritance/validators/ancestor_validator_spec.rb",
@@ -46,6 +47,7 @@ Gem::Specification.new do |s|
   s.test_files = [
     "spec/models.rb",
      "spec/spec_helper.rb",
+     "spec/vidibus/inheritance/cloning_spec.rb",
      "spec/vidibus/inheritance/inheritance_spec.rb",
      "spec/vidibus/inheritance/mongoid_spec.rb",
      "spec/vidibus/inheritance/validators/ancestor_validator_spec.rb"

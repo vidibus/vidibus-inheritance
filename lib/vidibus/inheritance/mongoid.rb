@@ -168,8 +168,14 @@ module Vidibus
           # embeds_many
           if inheritable.is_a?(Array)
             collection = new_record? ? self.send(association) : self.reload.send(association)
-            existing_ids = collection.map do |a| 
-              a.try!(:_reference_id)
+            existing_ids = collection.map { |a| a.try!(:_reference_id) }
+            
+            obsolete = (existing_ids - inheritable.map { |i| i._id }).compact
+            obsolete -= collection.select do |c| 
+              obsolete.include?(c.try!(:_reference_id)) and c.try!(:mutated?) # Exclude mutated items
+            end.map { |c| c.try!(:_reference_id) }
+            if obsolete.any?
+              collection.delete_all(:conditions => { :_reference_id.in => obsolete })
             end
 
             for obj in inheritable
@@ -180,16 +186,6 @@ module Vidibus
               else
                 doc = collection.create!(attrs)
               end
-            end
-            obsolete = (existing_ids - inheritable.map { |i| i._id }).compact
-            
-            # Exclude mutated items
-            obsolete -= collection.select do |c| 
-              obsolete.include?(c.try!(:_reference_id)) and c.try!(:mutated?)
-            end.map { |c| c.try!(:_reference_id) }
-
-            if obsolete.any?
-              collection.delete_all(:conditions => { :_reference_id.in => obsolete })
             end
           
           # embeds_one

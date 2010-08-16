@@ -1,8 +1,8 @@
-require 'rubygems'
-require 'rake'
+require "rubygems"
+require "rake"
 
 begin
-  require 'jeweler'
+  require "jeweler"
   Jeweler::Tasks.new do |gem|
     gem.name = "vidibus-inheritance"
     gem.summary = %Q{Provides inheritance for models.}
@@ -12,8 +12,8 @@ begin
     gem.authors = ["Andre Pankratz"]
     gem.add_development_dependency "rspec", ">= 1.2.9"
     gem.add_development_dependency "relevance-rcov"
-    gem.add_development_dependency "mongoid", "= 2.0.0.beta.15"
     gem.add_development_dependency "rr"
+    gem.add_development_dependency "mongoid", "= 2.0.0.beta.15"
     gem.add_dependency "vidibus-core_extensions"
     gem.add_dependency "vidibus-uuid"
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
@@ -23,16 +23,16 @@ rescue LoadError
   puts "Jeweler (or a dependency) not available. Install it with: gem install jeweler"
 end
 
-require 'spec/rake/spectask'
+require "spec/rake/spectask"
 Spec::Rake::SpecTask.new(:spec) do |spec|
-  spec.libs << 'lib' << 'spec'
-  spec.spec_files = FileList['spec/**/*_spec.rb']
+  spec.libs << "lib" << "spec"
+  spec.spec_files = FileList["spec/**/*_spec.rb"]
 end
 
 Spec::Rake::SpecTask.new(:rcov) do |t|
-  t.spec_files = FileList['spec/vidibus/**/*_spec.rb']
+  t.spec_files = FileList["spec/vidibus/**/*_spec.rb"]
   t.rcov = true
-  t.rcov_opts = ['--exclude', '^spec,/gems/']
+  t.rcov_opts = ["--exclude", "^spec,/gems/"]
 end
 
 task :spec => :check_dependencies
