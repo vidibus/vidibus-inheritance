@@ -2,10 +2,14 @@ module Vidibus
   module Inheritance
     module Mongoid
       extend ActiveSupport::Concern
-
+      
       ACQUIRED_ATTRIBUTES = %w[_id _type uuid ancestor_uuid mutated_attributes mutated created_at updated_at version versions]
       
       included do
+        
+        # To define additional aquired attributes on your model, set @@acquired_attributes on it.
+        #@@aquired_attributes = nil
+        
         attr_accessor :inherited_attributes, :_inherited
         attr_protected :mutated_attributes, :mutated
         
@@ -139,7 +143,13 @@ module Vidibus
         clone.save!
         clone
       end
-
+      
+      # Returns acquired attributes.
+      # Overwrite this method to define custom ones.
+      def acquired_attributes
+        ACQUIRED_ATTRIBUTES
+      end
+      
       private
     
       # Performs inheritance of attributes while excluding acquired and mutated ones.
@@ -147,7 +157,7 @@ module Vidibus
       def inherit_attributes(options = {})
         track_mutations
         self._inherited = true
-        exceptions = ACQUIRED_ATTRIBUTES
+        exceptions = self.acquired_attributes
         reset = options[:reset]
         if !reset
           exceptions += mutated_attributes
@@ -228,7 +238,7 @@ module Vidibus
       # Stores changed attributes as #mutated_attributes unless they have been inherited recently.
       def track_mutations
         changed_items = new_record? ? attributes.keys : changes.keys
-        changed_items -= ACQUIRED_ATTRIBUTES
+        changed_items -= self.acquired_attributes
         if inherited_attributes
           for key, value in inherited_attributes
             changed_items.delete(key) if value == attributes[key]
@@ -270,11 +280,15 @@ module Vidibus
       # Returns list of inheritable attributes of a given document.
       # The list will include the _id as reference.
       def inheritable_document_attributes(doc)
-        attrs = doc.attributes.except(*ACQUIRED_ATTRIBUTES)
+        # puts "doc = #{doc.inspect}"
+        # puts "doc.acquired_attributes = #{doc.acquired_attributes.inspect}"
+        # puts "doc.try!(:acquired_attributes) = #{doc.try!(:acquired_attributes).inspect}"
+        exceptions = doc.try!(:acquired_attributes) || ACQUIRED_ATTRIBUTES
+        attrs = doc.attributes.except(*exceptions)
         attrs[:_reference_id] = doc._id
         attrs
       end
-    
+      
       # Applies changes to inheritors.
       def update_inheritors
         return unless inheritors.any?

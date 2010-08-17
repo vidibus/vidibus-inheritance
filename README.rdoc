@@ -58,6 +58,12 @@ All attributes will be inherited, except these ACQUIRED_ATTRIBUTES:
   updated_at
   version
   versions
+  
+You may overwrite acquired attributes by defining a method on your inherited document and its embedded documents:
+
+  def acquired_attributes
+    Vidibus::Inheritance::Mongoid::ACQUIRED_ATTRIBUTES + %w[my custom values]
+  end
 
 
 === Manage mutations of embedded documents

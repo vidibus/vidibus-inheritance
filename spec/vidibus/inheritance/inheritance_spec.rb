@@ -34,10 +34,31 @@ describe "Inheritance" do
     inheritor.age.should eql(35)
   end
   
-  it "should not inherit acquired attributes" do
-    inheritor.update_attributes(:ancestor => ancestor)
-    Model::ACQUIRED_ATTRIBUTES.should include("uuid")
-    inheritor.uuid.should_not eql(ancestor.uuid)
+  context "of acquired attributes" do
+    it "should not inherit ACQUIRED_ATTRIBUTES" do
+      inheritor.update_attributes(:ancestor => ancestor)
+      Model::ACQUIRED_ATTRIBUTES.should include("uuid")
+      inheritor.uuid.should_not eql(ancestor.uuid)
+    end
+    
+    it "should not inherit custom acquired_attributes" do
+      Model.send(:define_method, :acquired_attributes) do
+        Model::ACQUIRED_ATTRIBUTES + ["name"]
+      end
+      inheritor.update_attributes(:ancestor => anna)
+      inheritor.name.should be_nil
+      Model.send(:remove_method, :acquired_attributes)
+    end
+     
+    it "should not inherit custom acquired_attributes on embedded documents" do
+      Child.send(:define_method, :acquired_attributes) do
+        Vidibus::Inheritance::Mongoid::ACQUIRED_ATTRIBUTES + ["custom"]
+      end
+      anna.children.create(:name => "Lucy", :custom => "something")
+      inheritor.update_attributes(:ancestor => anna)
+      inheritor.children.first.custom.should be_nil
+      Child.send(:remove_method, :acquired_attributes)
+    end
   end
   
   it "should apply ancestor's attributes to inheritor but keep previously mutated attributes" do

@@ -19,6 +19,7 @@ class Child
   include Mongoid::Document
   field :name
   field :mutated, :type => Boolean
+  field :custom
   validates :name, :presence => true
   embedded_in :model, :inverse_of => :children
   embeds_many :puppets
