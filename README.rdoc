@@ -90,6 +90,13 @@ To control how inherited data will be updated, you may define a callback method 
   end
 
 
+== TODO
+
+* Removed items will be re-added when inheritance is performed again. Introduce paranoid behaviour for embedded collection items? Or add a list of deleted associations like _destroyed_children?
+* Use delayed_job for inheritance across a huge pedigree.
+* Maybe use UUID for children to ensure portability across the network?
+
+
 == Copyright
 
 Copyright (c) 2010 Andre Pankratz. See LICENSE for details.
