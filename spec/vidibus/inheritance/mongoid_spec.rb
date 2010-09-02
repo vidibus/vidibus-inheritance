@@ -129,17 +129,15 @@ describe "Vidibus::Inheritance::Mongoid" do
   describe "#inherit!" do
     it "should call #inherit_attributes once" do
       stub(inheritor)._inherited { true }
-      stub(inheritor).inherit_attributes
+      mock(inheritor).inherit_attributes({})
       inheritor.ancestor = anna
       inheritor.inherit!
-      inheritor.should have_received.inherit_attributes.once.with_any_args
     end
     
     it "should call #save!" do
-      stub(inheritor).save!
+      mock(inheritor).save!
       inheritor.ancestor = anna
       inheritor.inherit!
-      inheritor.should have_received.save!
     end
     
     context "with mutations" do
@@ -172,8 +170,6 @@ describe "Vidibus::Inheritance::Mongoid" do
   end
   
   describe "#inherit_from!" do
-    #let(:ancestor) { Model.create!(:name => "Anna", :age => 35) }
-    
     it "should set ancestor" do
       inheritor.ancestor.should be_nil
       inheritor.inherit_from!(ancestor)
@@ -181,9 +177,8 @@ describe "Vidibus::Inheritance::Mongoid" do
     end
     
     it "should call #inherit!" do
-      stub(inheritor).inherit!
+      mock(inheritor).inherit!
       inheritor.inherit!
-      inheritor.should have_received(:inherit!)
     end
   end
   

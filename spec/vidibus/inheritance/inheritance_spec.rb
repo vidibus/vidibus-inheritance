@@ -15,9 +15,8 @@ describe "Inheritance" do
   it "should happen when ancestor did change" do
     inheritor = Model.create!
     inheritor.ancestor = ancestor
-    stub(inheritor).inherit_attributes
+    mock(inheritor).inherit_attributes
     inheritor.save
-    inheritor.should have_received.inherit_attributes
   end
   
   it "should not happen when ancestor did not change" do
