@@ -3,7 +3,7 @@ module Vidibus
     module Mongoid
       extend ActiveSupport::Concern
       
-      ACQUIRED_ATTRIBUTES = %w[_id _type uuid ancestor_uuid mutated_attributes mutated created_at updated_at version versions]
+      ACQUIRED_ATTRIBUTES = %w[_id _type uuid ancestor_uuid root_ancestor_uuid mutated_attributes mutated created_at updated_at version versions]
       
       included do
         
@@ -14,14 +14,17 @@ module Vidibus
         attr_protected :mutated_attributes, :mutated
         
         field :ancestor_uuid
+        field :root_ancestor_uuid
         field :mutated_attributes, :type => Array, :default => []
         field :mutated, :type => Boolean
-
+        
         validates :ancestor_uuid, :uuid => { :allow_blank => true }
+        validates :root_ancestor_uuid, :uuid => { :allow_blank => true }
         validates :ancestor, :ancestor => true, :if => :ancestor_uuid?
+        validates :root_ancestor, :ancestor => true, :if => :root_ancestor_uuid?
 
         set_callback :validate, :before, :inherit_attributes, :if => :inherit?
-        set_callback :save, :before, :track_mutations
+        set_callback :save, :before, :track_mutations, :set_root_ancestor
         set_callback :save, :after, :postprocess
         set_callback :destroy, :after, :destroy_inheritors
         
@@ -67,9 +70,9 @@ module Vidibus
         #
         # Examples:
         #   
-        #   Model.root                          # => All models without ancestor
-        #   Model.root.where(:name => "Laura")  # => Only models named Laura
-        #   Model.root.asc(:created_at)         # => All models, ordered by date of creation
+        #   Model.roots                          # => All models without ancestor
+        #   Model.roots.where(:name => "Laura")  # => Only models named Laura
+        #   Model.roots.asc(:created_at)         # => All models, ordered by date of creation
         # 
         def roots
           where(:ancestor_uuid => nil)
@@ -97,6 +100,13 @@ module Vidibus
             break unless obj = obj.ancestor
             bloodline << obj
           end
+        end
+      end
+      
+      # Returns root ancestor object by uuid.
+      def root_ancestor
+        @root_ancestor ||= begin
+          self.class.where(:uuid => root_ancestor_uuid).first if root_ancestor_uuid
         end
       end
       
@@ -299,6 +309,20 @@ module Vidibus
       def destroy_inheritors
         return unless inheritors.any?
         inheritors.each(&:destroy)
+      end
+      
+      # Sets root ancestor from ancestor:
+      # If ancestor is the root ancestor, he will be set.
+      # If ancestor has an ancestor himself, his root ancestor will be set.
+      def set_root_ancestor
+        @root_ancestor = nil # reset cache
+        if !ancestor_uuid
+          self.root_ancestor_uuid = nil
+        elsif ancestor and !ancestor.ancestor_uuid
+          self.root_ancestor_uuid = ancestor_uuid
+        else
+          self.root_ancestor_uuid = ancestor.root_ancestor_uuid
+        end
       end
     end
   end

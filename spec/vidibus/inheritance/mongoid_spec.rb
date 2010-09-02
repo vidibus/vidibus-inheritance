@@ -126,6 +126,31 @@ describe "Vidibus::Inheritance::Mongoid" do
     end
   end
   
+  describe "#root_ancestor" do
+    it "should be nil if no ancestor is given" do
+      anna.ancestor.should be_nil
+      anna.root_ancestor.should be_nil
+    end
+    
+    it "should return ancestor if ancestor is the root one" do
+      jeanny.inherit_from!(anna)
+      jeanny.root_ancestor.should eql(anna)
+    end
+    
+    it "should be inherited from ancestor" do
+      anna.inherit_from!(ancestor)
+      jeanny.inherit_from!(anna)
+      jeanny.root_ancestor.should eql(ancestor)
+    end
+    
+    it "should be changeable" do
+      jeanny.inherit_from!(anna)
+      jeanny.root_ancestor.should eql(anna)
+      jeanny.inherit_from!(ancestor)
+      jeanny.root_ancestor.should eql(ancestor)
+    end
+  end
+  
   describe "#inherit!" do
     it "should call #inherit_attributes once" do
       stub(inheritor)._inherited { true }

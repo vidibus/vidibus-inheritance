@@ -440,5 +440,4 @@ describe "Inheritance" do
       end
     end
   end
-
 end
