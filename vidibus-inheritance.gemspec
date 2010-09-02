@@ -5,25 +5,27 @@
 
 Gem::Specification.new do |s|
   s.name = %q{vidibus-inheritance}
-  s.version = "0.3.11"
+  s.version = "0.3.12"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Andre Pankratz"]
-  s.date = %q{2010-08-17}
+  s.date = %q{2010-09-02}
   s.description = %q{This gem allows inheritance of objects for Rails 3 with Mongoid. It will update all attributes and embedded documents of inheritors when ancestor gets changed.}
   s.email = %q{andre@vidibus.com}
   s.extra_rdoc_files = [
     "LICENSE",
-     "README.rdoc",
-     "TODO"
+     "README.rdoc"
   ]
   s.files = [
-    ".document",
+    ".bundle/config",
+     ".document",
      ".gitignore",
+     ".rspec",
+     "Gemfile",
+     "Gemfile.lock",
      "LICENSE",
      "README.rdoc",
      "Rakefile",
-     "TODO",
      "VERSION",
      "lib/vidibus-inheritance.rb",
      "lib/vidibus/inheritance.rb",
@@ -31,7 +33,6 @@ Gem::Specification.new do |s|
      "lib/vidibus/inheritance/validators.rb",
      "lib/vidibus/inheritance/validators/ancestor_validator.rb",
      "spec/models.rb",
-     "spec/spec.opts",
      "spec/spec_helper.rb",
      "spec/vidibus/inheritance/cloning_spec.rb",
      "spec/vidibus/inheritance/inheritance_spec.rb",
@@ -58,25 +59,16 @@ Gem::Specification.new do |s|
     s.specification_version = 3
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
-      s.add_development_dependency(%q<rspec>, [">= 1.2.9"])
-      s.add_development_dependency(%q<relevance-rcov>, [">= 0"])
-      s.add_development_dependency(%q<rr>, [">= 0"])
-      s.add_development_dependency(%q<mongoid>, ["= 2.0.0.beta.15"])
+      s.add_runtime_dependency(%q<mongoid>, ["~> 2.0.0.beta.17"])
       s.add_runtime_dependency(%q<vidibus-core_extensions>, [">= 0"])
       s.add_runtime_dependency(%q<vidibus-uuid>, [">= 0"])
     else
-      s.add_dependency(%q<rspec>, [">= 1.2.9"])
-      s.add_dependency(%q<relevance-rcov>, [">= 0"])
-      s.add_dependency(%q<rr>, [">= 0"])
-      s.add_dependency(%q<mongoid>, ["= 2.0.0.beta.15"])
+      s.add_dependency(%q<mongoid>, ["~> 2.0.0.beta.17"])
       s.add_dependency(%q<vidibus-core_extensions>, [">= 0"])
       s.add_dependency(%q<vidibus-uuid>, [">= 0"])
     end
   else
-    s.add_dependency(%q<rspec>, [">= 1.2.9"])
-    s.add_dependency(%q<relevance-rcov>, [">= 0"])
-    s.add_dependency(%q<rr>, [">= 0"])
-    s.add_dependency(%q<mongoid>, ["= 2.0.0.beta.15"])
+    s.add_dependency(%q<mongoid>, ["~> 2.0.0.beta.17"])
     s.add_dependency(%q<vidibus-core_extensions>, [">= 0"])
     s.add_dependency(%q<vidibus-uuid>, [">= 0"])
   end
