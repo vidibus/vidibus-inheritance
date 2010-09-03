@@ -10,8 +10,7 @@ GEM
     bson_ext (1.0.7)
     builder (2.1.2)
     diff-lcs (1.1.2)
-    gemcutter (0.5.0)
-      json_pure
+    gemcutter (0.6.1)
     git (1.2.5)
     i18n (0.4.1)
     jeweler (1.4.0)
@@ -39,14 +38,12 @@ GEM
     rspec-expectations (2.0.0.beta.20)
       diff-lcs (>= 1.1.2)
     rspec-mocks (2.0.0.beta.20)
-    rspec-rails (2.0.0.beta.20)
-      rspec (= 2.0.0.beta.20)
     rubyforge (2.0.4)
       json_pure (>= 1.1.7)
     tzinfo (0.3.23)
     uuid (2.3.1)
       macaddr (~> 1.0)
-    vidibus-core_extensions (0.3.5)
+    vidibus-core_extensions (0.3.4)
     vidibus-uuid (0.3.6)
       uuid
     will_paginate (3.0.pre2)
@@ -57,13 +54,11 @@ PLATFORMS
 DEPENDENCIES
   activesupport (~> 3.0.0)
   bson_ext (~> 1.0.7)
-  gemcutter (= 0.5.0)
   jeweler
   mongoid (~> 2.0.0.beta.17)
   rake
   relevance-rcov
   rr
   rspec (~> 2.0.0.beta.20)
-  rspec-rails (~> 2.0.0.beta.20)
   vidibus-core_extensions
   vidibus-uuid
