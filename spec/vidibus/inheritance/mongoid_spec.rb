@@ -205,6 +205,10 @@ describe "Vidibus::Inheritance::Mongoid" do
       mock(inheritor).inherit!
       inheritor.inherit!
     end
+  
+    it "should return the inheritor" do
+      Model.new.inherit_from!(ancestor).should be_a(Model)
+    end
   end
   
   describe "#inheritors" do

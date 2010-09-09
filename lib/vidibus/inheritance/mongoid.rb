@@ -124,11 +124,12 @@ module Vidibus
         self.save!
       end
     
-      # Performs inheritance from given object.
+      # Performs inheritance from given object and returns self.
       # It sets the ancestor and then calls #inherit! with given options.
       def inherit_from!(obj, options = {})
         self.ancestor = obj
         self.inherit!(options)
+        self
       end
     
       # Returns inheritors of this ancestor.
