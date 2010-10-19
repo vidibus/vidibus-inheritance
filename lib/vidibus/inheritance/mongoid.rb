@@ -230,7 +230,7 @@ module Vidibus
         if inheritor?
           inherit_documents if embed?
           # TODO: allow real callbacks
-          if try!(:after_inheriting)
+          if respond_to?(:after_inheriting)
             after_inheriting
           end
         end
