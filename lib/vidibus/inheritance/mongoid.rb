@@ -227,7 +227,13 @@ module Vidibus
       
       # Performs actions after saving.
       def postprocess
-        inherit_documents if inheritor? and embed?
+        if inheritor?
+          inherit_documents if embed?
+          # TODO: allow real callbacks
+          if try!(:after_inheriting)
+            after_inheriting
+          end
+        end
         update_inheritors
       end
       

@@ -440,4 +440,23 @@ describe "Inheritance" do
       end
     end
   end
+
+  context "with defined after callback" do
+    before do 
+      any_instance_of(Model) do |m|
+        stub(m).after_inheriting {}
+      end
+      inheritor.inherit_from!(ancestor)
+    end
+    
+    it "should call #after_inheriting on inheritor" do
+      any_instance_of(Model) {|m| mock(m).after_inheriting}
+      ancestor.save
+    end
+    
+    it "should not call #after_inheriting on ancestor" do
+      dont_allow(ancestor).after_inheriting
+      ancestor.save
+    end
+  end
 end
