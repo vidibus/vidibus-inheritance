@@ -24,8 +24,8 @@ module Vidibus
         validates :root_ancestor, :ancestor => true, :if => :root_ancestor_uuid?
 
         set_callback :validate, :before, :inherit_attributes, :if => :inherit?
-        set_callback :save, :before, :track_mutations, :set_root_ancestor
-        set_callback :save, :after, :postprocess
+        set_callback :save, :before, :track_mutations, :set_root_ancestor, :unless => :skip_inheritance?
+        set_callback :save, :after, :postprocess, :unless => :skip_inheritance?
         set_callback :destroy, :after, :destroy_inheritors
         
         # Returns true if attributes have been mutated.
@@ -231,6 +231,7 @@ module Vidibus
           inherit_documents if embed?
           # TODO: allow real callbacks
           if respond_to?(:after_inheriting)
+            @skip_inheritance = true
             after_inheriting
           end
         end
@@ -246,7 +247,11 @@ module Vidibus
       def inherit?
         !_inherited and ancestor and (new_record? or ancestor_uuid_changed?)
       end
-    
+      
+      def skip_inheritance?
+        @skip_inheritance
+      end
+      
       # Returns true if this documents has any inheritable documents.
       def embed?
         inheritable_documents.any?
