@@ -44,7 +44,7 @@ GEM
     tzinfo (0.3.23)
     uuid (2.3.1)
       macaddr (~> 1.0)
-    vidibus-core_extensions (0.3.8)
+    vidibus-core_extensions (0.3.10)
     vidibus-uuid (0.3.8)
       mongoid (~> 2.0.0.beta.20)
       uuid (~> 2.3.1)
