@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{vidibus-inheritance}
-  s.version = "0.3.14"
+  s.version = "0.3.15"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Andre Pankratz"]
-  s.date = %q{2010-09-09}
+  s.date = %q{2010-10-22}
   s.description = %q{This gem allows inheritance of objects for Rails 3 with Mongoid. It will update all attributes and embedded documents of inheritors when ancestor gets changed.}
   s.email = %q{andre@vidibus.com}
   s.extra_rdoc_files = [
@@ -59,16 +59,16 @@ Gem::Specification.new do |s|
     s.specification_version = 3
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
-      s.add_runtime_dependency(%q<mongoid>, ["~> 2.0.0.beta.17"])
+      s.add_runtime_dependency(%q<mongoid>, ["~> 2.0.0.beta.20"])
       s.add_runtime_dependency(%q<vidibus-core_extensions>, [">= 0"])
       s.add_runtime_dependency(%q<vidibus-uuid>, [">= 0"])
     else
-      s.add_dependency(%q<mongoid>, ["~> 2.0.0.beta.17"])
+      s.add_dependency(%q<mongoid>, ["~> 2.0.0.beta.20"])
       s.add_dependency(%q<vidibus-core_extensions>, [">= 0"])
       s.add_dependency(%q<vidibus-uuid>, [">= 0"])
     end
   else
-    s.add_dependency(%q<mongoid>, ["~> 2.0.0.beta.17"])
+    s.add_dependency(%q<mongoid>, ["~> 2.0.0.beta.20"])
     s.add_dependency(%q<vidibus-core_extensions>, [">= 0"])
     s.add_dependency(%q<vidibus-uuid>, [">= 0"])
   end
